@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,7 @@ import { ArrowLeft, Copy, Send, Users, MessageCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 
-export default function WAGeneratorPage() {
+function WAGeneratorContent() {
   const searchParams = useSearchParams()
   
   const [guestData, setGuestData] = useState({
@@ -442,10 +442,17 @@ David Smith, 6281111222333, Rekan Kerja`}
                   )}
                 </CardContent>
               </Card>
-            </div>
-          </div>
+            </div>        </div>
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function WAGeneratorPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <WAGeneratorContent />
+    </Suspense>
   )
 }
