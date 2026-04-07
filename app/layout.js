@@ -16,7 +16,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="id">
-      <body className="overflow-x-hidden">{children}</body>
+      <body className="overflow-x-hidden">
+        <div className="mobile-shell">{children}</div>
+      </body>
     </html>
   )
 }

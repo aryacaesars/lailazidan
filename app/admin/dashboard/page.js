@@ -1,25 +1,59 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   MessageCircle, 
   Users, 
-  Settings, 
-  BarChart3, 
-  Mail,
   ArrowLeft,
   Send,
   UserPlus
 } from "lucide-react"
 
 export default function AdminDashboard() {
+  const [rsvps, setRsvps] = useState([])
+  const [loadingStats, setLoadingStats] = useState(true)
+
+  useEffect(() => {
+    const loadRsvps = async () => {
+      try {
+        const response = await fetch("/api/rsvps")
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result?.error || "Gagal mengambil data RSVP")
+        }
+
+        setRsvps(Array.isArray(result?.data) ? result.data : [])
+      } catch (error) {
+        toast({
+          title: "Gagal memuat statistik dashboard",
+          description: error.message || "Terjadi kesalahan saat mengambil data dari Firebase",
+          variant: "destructive",
+        })
+      } finally {
+        setLoadingStats(false)
+      }
+    }
+
+    loadRsvps()
+  }, [])
+
+  const stats = useMemo(() => {
+    const total = rsvps.length
+    const hadir = rsvps.filter((item) => item.attendance === "hadir").length
+    const tidakHadir = rsvps.filter((item) => item.attendance === "tidak-hadir").length
+    return { total, hadir, tidakHadir }
+  }, [rsvps])
+
   const adminFeatures = [
     {
-      title: "Generator WhatsApp",
-      description: "Buat link dan pesan WhatsApp untuk tamu undangan",
+      title: "Generator Nama Tamu",
+      description: "Buat link undangan personal untuk nama tamu",
       icon: MessageCircle,
       href: "/admin/wa-generator",
       color: "bg-green-500",
@@ -32,30 +66,6 @@ export default function AdminDashboard() {
       href: "/admin/guests",
       color: "bg-blue-500",
       hoverColor: "hover:bg-blue-600"
-    },
-    {
-      title: "Pesan Masuk",
-      description: "Baca pesan dari tamu undangan",
-      icon: Mail,
-      href: "/admin/messages",
-      color: "bg-purple-500",
-      hoverColor: "hover:bg-purple-600"
-    },
-    {
-      title: "Statistik RSVP",
-      description: "Lihat statistik konfirmasi kehadiran",
-      icon: BarChart3,
-      href: "/admin/statistics",
-      color: "bg-orange-500",
-      hoverColor: "hover:bg-orange-600"
-    },
-    {
-      title: "Pengaturan",
-      description: "Konfigurasi undangan dan template",
-      icon: Settings,
-      href: "/admin/settings",
-      color: "bg-gray-500",
-      hoverColor: "hover:bg-gray-600"
     }
   ]
 
@@ -82,13 +92,15 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Tamu</p>
-                    <p className="text-2xl font-bold text-gray-900">150</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {loadingStats ? "..." : stats.total}
+                    </p>
                   </div>
                   <UserPlus className="w-8 h-8 text-blue-500" />
                 </div>
@@ -99,8 +111,10 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Akan Hadir</p>
-                    <p className="text-2xl font-bold text-green-600">85</p>
+                    <p className="text-sm font-medium text-gray-600">Inshaallah Hadir</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {loadingStats ? "..." : stats.hadir}
+                    </p>
                   </div>
                   <Users className="w-8 h-8 text-green-500" />
                 </div>
@@ -112,24 +126,15 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Tidak Hadir</p>
-                    <p className="text-2xl font-bold text-red-600">12</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {loadingStats ? "..." : stats.tidakHadir}
+                    </p>
                   </div>
                   <Users className="w-8 h-8 text-red-500" />
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Belum Konfirmasi</p>
-                    <p className="text-2xl font-bold text-yellow-600">53</p>
-                  </div>
-                  <Users className="w-8 h-8 text-yellow-500" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Admin Features Grid */}
@@ -178,19 +183,13 @@ export default function AdminDashboard() {
                   <Link href="/admin/wa-generator">
                     <Button className="bg-green-600 hover:bg-green-700">
                       <Send className="w-4 h-4 mr-2" />
-                      Buat Pesan WhatsApp
+                      Buat Nama Tamu
                     </Button>
                   </Link>
                   <Link href="/admin/guests">
                     <Button variant="outline">
                       <UserPlus className="w-4 h-4 mr-2" />
                       Tambah Tamu
-                    </Button>
-                  </Link>
-                  <Link href="/admin/statistics">
-                    <Button variant="outline">
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Lihat Statistik
                     </Button>
                   </Link>
                 </div>

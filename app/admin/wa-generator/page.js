@@ -1,178 +1,206 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowLeft, Copy, Send, Users, MessageCircle } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { ArrowLeft, Copy, Send, Users, MessageCircle, CircleCheck } from "lucide-react"
+import invitationData from "@/data/invitation-data.json"
 
-function WAGeneratorContent() {
-  const searchParams = useSearchParams()
-  
-  const [guestData, setGuestData] = useState({
-    name: "",
-    phone: "",
-    relation: ""
-  })
-  
-  // Pre-fill data from URL parameters
-  useEffect(() => {
-    const guestName = searchParams.get('guest')
-    const guestPhone = searchParams.get('phone')
-    const guestRelation = searchParams.get('relation')
-    
-    if (guestName || guestPhone || guestRelation) {
-      setGuestData({
-        name: guestName || "",
-        phone: guestPhone || "",
-        relation: guestRelation || ""
-      })
-    }
-  }, [searchParams])
-  
-  const [messageTemplate, setMessageTemplate] = useState(
-    `Assalamualaikum Wr. Wb.
+const buildMessageTemplate = (style = "formal") => {
+  const wedding = invitationData?.wedding || {}
+  const eventSection = invitationData?.eventSection || {}
+  const mainEvent = eventSection?.events?.[0] || {}
+  const waGenerator = invitationData?.waGenerator || {}
+  const selectedStyle = waGenerator?.styles?.[style]
 
-Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i dalam acara pernikahan kami:
+  const coupleName = wedding?.coupleShortName || "Mempelai"
+  const eventDate = mainEvent?.date || wedding?.date || "-"
+  const eventTime = mainEvent?.time || wedding?.dayTime || "-"
+  const eventLocation = mainEvent?.location || wedding?.venue || "-"
+  const eventAddress = mainEvent?.address || wedding?.address || "-"
 
-*Sarah Amelia & David Rahman*
+  if (selectedStyle?.template) {
+    return selectedStyle.template
+      .replaceAll("{couple_name}", coupleName)
+      .replaceAll("{event_date}", eventDate)
+      .replaceAll("{event_time}", eventTime)
+      .replaceAll("{event_location}", eventLocation)
+      .replaceAll("{event_address}", eventAddress)
+  }
 
-📅 Sabtu, 15 Juni 2025
-🕐 Pukul 08.00 - 12.00 WIB
-📍 Gedung Serbaguna Mekar Sari
-    Jl. Merdeka No. 123, Jakarta
+  return `Yth. {guest_name},
 
-Merupakan suatu kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dalam acara bahagia kami.
+Dengan hormat, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan:
 
-Untuk konfirmasi kehadiran, silakan klik link berikut:
+*${coupleName}*
+
+📅 ${eventDate}
+🕐 ${eventTime}
+📍 ${eventLocation}
+   ${eventAddress}
+
+Merupakan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir.
+
+Konfirmasi kehadiran dapat dilakukan melalui tautan berikut:
 {invitation_link}
 
-Jazakumullahu khairan.
+Terima kasih atas perhatian dan doa restunya.`
+}
 
-Wassalamualaikum Wr. Wb.
-
-Sarah & David`
-  )
-  
+function WAGeneratorContent() {
+  const initialStyle = invitationData?.waGenerator?.defaultStyle || "formal"
+  const [messageStyle, setMessageStyle] = useState(initialStyle)
+  const [messageTemplate, setMessageTemplate] = useState(buildMessageTemplate(initialStyle))
   const [generatedMessages, setGeneratedMessages] = useState([])
-  const [bulkGuests, setBulkGuests] = useState("")
-  
-  const baseInvitationUrl = typeof window !== 'undefined' ? `${window.location.origin}` : 'https://yourwedding.com'
+  const [guestNamesInput, setGuestNamesInput] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoadingGuests, setIsLoadingGuests] = useState(true)
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingGuestId, setEditingGuestId] = useState(null)
+  const [editingGuestName, setEditingGuestName] = useState("")
+  const [showLinkCopiedBanner, setShowLinkCopiedBanner] = useState(false)
 
-  const handleGuestChange = (e) => {
-    const { name, value } = e.target
-    setGuestData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
-  const formatPhoneNumber = (phone) => {
-    // Remove all non-digit characters
-    let cleanPhone = phone.replace(/\D/g, '')
-    
-    // If phone starts with 0, replace with 62 (Indonesian country code)
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62' + cleanPhone.substring(1)
-    }
-    // If phone doesn't start with country code, add Indonesian country code
-    else if (!cleanPhone.startsWith('62')) {
-      cleanPhone = '62' + cleanPhone
-    }
-    
-    return cleanPhone
+  const baseInvitationUrl = typeof window !== "undefined" ? `${window.location.origin}` : "https://yourwedding.com"
+
+  const handleStyleChange = (style) => {
+    setMessageStyle(style)
+    setMessageTemplate(buildMessageTemplate(style))
   }
 
-  const generateSingleMessage = () => {
-    if (!guestData.name || !guestData.phone) {
-      toast({
-        title: "Error",
-        description: "Nama dan nomor telepon wajib diisi",
-        variant: "destructive"
-      })
-      return
-    }
-
-    const invitationLink = `${baseInvitationUrl}?guest=${encodeURIComponent(guestData.name)}`
-    const personalizedMessage = messageTemplate.replace('{invitation_link}', invitationLink)
-    const formattedPhone = formatPhoneNumber(guestData.phone)
-    const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(personalizedMessage)}`
-      const newMessage = {
-      id: Date.now(),
-      name: guestData.name,
-      phone: guestData.phone,
-      relation: guestData.relation,
-      message: personalizedMessage,
-      whatsappUrl,
-      invitationLink,
-      formattedPhone
-    }
-    
-    setGeneratedMessages(prev => [newMessage, ...prev])
-    setGuestData({ name: "", phone: "", relation: "" })
-    
-    toast({
-      title: "Berhasil",
-      description: `Pesan untuk ${newMessage.name} berhasil dibuat`
-    })
-  }
-
-  const generateBulkMessages = () => {
-    if (!bulkGuests.trim()) {
-      toast({
-        title: "Error",
-        description: "Data tamu tidak boleh kosong",
-        variant: "destructive"
-      })
-      return
-    }
-
-    const lines = bulkGuests.trim().split('\n')
-    const newMessages = []
-      lines.forEach((line, index) => {
-      const parts = line.split(',').map(part => part.trim())
-      if (parts.length >= 2) {
-        const [name, phone, relation = ""] = parts
-        if (name && phone) {
-          const invitationLink = `${baseInvitationUrl}?guest=${encodeURIComponent(name)}`
-          const personalizedMessage = messageTemplate.replace('{invitation_link}', invitationLink)
-          const formattedPhone = formatPhoneNumber(phone)
-          const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(personalizedMessage)}`
-          
-          newMessages.push({
-            id: Date.now() + index,
-            name,
-            phone,
-            relation,
-            message: personalizedMessage,
-            whatsappUrl,
-            invitationLink,
-            formattedPhone
-          })
+  useEffect(() => {
+    const loadGuests = async () => {
+      try {
+        const response = await fetch("/api/guests")
+        const result = await response.json()
+        if (!response.ok) {
+          throw new Error(result?.error || "Gagal memuat daftar tamu")
         }
+
+        const savedGuests = Array.isArray(result?.data) ? result.data : []
+        const mappedGuests = savedGuests.map((guest, index) => {
+          const name = guest?.name || ""
+          const invitationLink = `${baseInvitationUrl}?guest=${encodeURIComponent(name)}`
+          const message = messageTemplate
+            .replaceAll("{invitation_link}", invitationLink)
+            .replaceAll("{guest_name}", name)
+
+          return {
+            id: guest.id || `${Date.now()}-${index}`,
+            name,
+            phone: "",
+            relation: "",
+            message,
+            whatsappUrl: `https://wa.me/?text=${encodeURIComponent(message)}`,
+            invitationLink,
+            formattedPhone: "",
+            messageStyle,
+          }
+        })
+
+        setGeneratedMessages(mappedGuests)
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Gagal memuat daftar tamu",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingGuests(false)
+      }
+    }
+
+    loadGuests()
+  }, [])
+
+  const generateBulkMessages = async () => {
+    if (isSubmitting) return
+
+    if (!guestNamesInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Nama tamu tidak boleh kosong",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const names = guestNamesInput
+      .split(/[\n,]/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+
+    if (names.length === 0) {
+      toast({
+        title: "Error",
+        description: "Format nama tamu tidak valid",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const newMessages = names.map((name) => {
+      const invitationLink = `${baseInvitationUrl}?guest=${encodeURIComponent(name)}`
+      const personalizedMessage = messageTemplate
+        .replaceAll("{invitation_link}", invitationLink)
+        .replaceAll("{guest_name}", name)
+
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(personalizedMessage)}`
+
+      return {
+        id: "",
+        name,
+        phone: "",
+        relation: "",
+        message: personalizedMessage,
+        whatsappUrl,
+        invitationLink,
+        formattedPhone: "",
+        messageStyle,
       }
     })
-    
-    if (newMessages.length > 0) {
-      setGeneratedMessages(prev => [...newMessages, ...prev])
-      setBulkGuests("")
+
+    try {
+      setIsSubmitting(true)
+      const response = await fetch("/api/guests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ names }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result?.error || "Gagal membuat nama tamu")
+      }
+      const createdIds = Array.isArray(result?.ids) ? result.ids : []
+      const messagesWithIds = newMessages.map((msg, index) => ({
+        ...msg,
+        id: createdIds[index] || `${Date.now()}-${index}`,
+      }))
+
+      setGeneratedMessages((prev) => [...messagesWithIds, ...prev])
+      setGuestNamesInput("")
       toast({
         title: "Berhasil",
-        description: `${newMessages.length} pesan berhasil dibuat`
+        description: `${newMessages.length} nama tamu berhasil dibuat`,
       })
-    } else {
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Format data tidak valid. Gunakan format: Nama, Nomor HP, Hubungan",
-        variant: "destructive"
+        description: error.message || "Gagal membuat nama tamu",
+        variant: "destructive",
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -180,260 +208,314 @@ Sarah & David`
     navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Berhasil",
-        description: "Teks berhasil disalin ke clipboard"
+        description: "Teks berhasil disalin ke clipboard",
       })
     })
   }
 
+  const handleCopyInvitationLink = async (link) => {
+    try {
+      await navigator.clipboard.writeText(link)
+      setShowLinkCopiedBanner(true)
+      setTimeout(() => setShowLinkCopiedBanner(false), 1500)
+    } catch {
+      toast({
+        title: "Error",
+        description: "Gagal menyalin link",
+        variant: "destructive",
+      })
+    }
+  }
+
   const openWhatsApp = (url) => {
-    window.open(url, '_blank')
+    window.open(url, "_blank")
   }
 
-  const deleteMessage = (id) => {
-    setGeneratedMessages(prev => prev.filter(msg => msg.id !== id))
-    toast({
-      title: "Berhasil",
-      description: "Pesan berhasil dihapus"
-    })
+  const openEditGuestModal = (id) => {
+    const target = generatedMessages.find((msg) => msg.id === id)
+    if (!target) return
+
+    setEditingGuestId(id)
+    setEditingGuestName(target.name || "")
+    setEditModalOpen(true)
   }
 
-  const clearAllMessages = () => {
-    setGeneratedMessages([])
-    toast({
-      title: "Berhasil",
-      description: "Semua pesan berhasil dihapus"
-    })
+  const saveEditedGuest = async () => {
+    const trimmedName = editingGuestName.trim()
+    if (!trimmedName || !editingGuestId) return
+    const invitationLink = `${baseInvitationUrl}?guest=${encodeURIComponent(trimmedName)}`
+    const personalizedMessage = messageTemplate
+      .replaceAll("{invitation_link}", invitationLink)
+      .replaceAll("{guest_name}", trimmedName)
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(personalizedMessage)}`
+
+    try {
+      setIsSavingEdit(true)
+      const response = await fetch(`/api/guests/${editingGuestId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: trimmedName }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result?.error || "Gagal memperbarui nama tamu")
+      }
+
+      setGeneratedMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === editingGuestId
+            ? {
+                ...msg,
+                name: trimmedName,
+                invitationLink,
+                message: personalizedMessage,
+                whatsappUrl,
+              }
+            : msg,
+        ),
+      )
+      setEditModalOpen(false)
+      setEditingGuestId(null)
+      setEditingGuestName("")
+
+      toast({
+        title: "Berhasil",
+        description: "Nama tamu berhasil diperbarui",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Gagal memperbarui nama tamu",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSavingEdit(false)
+    }
+  }
+
+  const deleteMessage = async (id) => {
+    try {
+      const response = await fetch(`/api/guests/${id}`, {
+        method: "DELETE",
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result?.error || "Gagal menghapus tamu")
+      }
+
+      setGeneratedMessages((prev) => prev.filter((msg) => msg.id !== id))
+      toast({
+        title: "Berhasil",
+        description: "Data tamu berhasil dihapus",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Gagal menghapus tamu",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const clearAllMessages = async () => {
+    const ids = generatedMessages.map((msg) => msg.id).filter(Boolean)
+    if (ids.length === 0) return
+
+    try {
+      const response = await fetch("/api/guests", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result?.error || "Gagal menghapus semua tamu")
+      }
+
+      setGeneratedMessages([])
+      toast({
+        title: "Berhasil",
+        description: "Semua data tamu berhasil dihapus",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Gagal menghapus semua tamu",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 p-2.5 sm:p-4">
+      {showLinkCopiedBanner && (
+        <div className="fixed left-1/2 top-6 z-[70] w-[92%] max-w-xl -translate-x-1/2 rounded-2xl bg-green-500 px-5 py-4 text-white shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-white p-1.5">
+              <CircleCheck className="h-5 w-5 text-green-500" />
+            </div>
+            <p className="text-base font-medium sm:text-lg">Link berhasil disalin</p>
+          </div>
+        </div>
+      )}
+      <div className="mx-auto max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:gap-4">
             <Link href="/admin">
               <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Kembali
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Generator WhatsApp</h1>
-              <p className="text-gray-600">Buat link dan pesan WhatsApp untuk tamu undangan</p>
+              <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Generator Nama Tamu</h1>
+              <p className="text-sm text-gray-600 sm:text-base">Buat link undangan personal untuk nama tamu</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Input Section */}
+          <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
             <div className="space-y-6">
-              {/* Template Message */}
               <Card>
-                <CardHeader>
+                <CardHeader className="p-4 sm:p-6">
                   <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5" />
+                    <MessageCircle className="h-5 w-5" />
                     Template Pesan
-                  </CardTitle>                  <CardDescription>
-                    Sesuaikan template pesan undangan. Gunakan {`{invitation_link}`} untuk link undangan otomatis.
-                    <br />
-                    <span className="text-xs text-gray-500">
-                      Tips: Nomor telepon akan otomatis diformat dengan kode negara Indonesia (+62)
-                    </span>
+                  </CardTitle>
+                  <CardDescription className="text-xs leading-relaxed sm:text-sm">
+                    Pilih tipe template pesan lalu sesuaikan template. Gunakan {`{invitation_link}`} untuk link undangan
+                    otomatis dan {`{guest_name}`} untuk nama tamu.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3 p-4 pt-0 sm:p-6 sm:pt-0">
+                  <div className="space-y-2">
+                    <Label htmlFor="templateType">Tipe Template Pesan</Label>
+                    <select
+                      id="templateType"
+                      value={messageStyle}
+                      onChange={(e) => handleStyleChange(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="formal">Formal</option>
+                      <option value="islami">Islami</option>
+                    </select>
+                  </div>
                   <Textarea
                     value={messageTemplate}
                     onChange={(e) => setMessageTemplate(e.target.value)}
-                    rows={12}
+                    rows={14}
                     className="resize-none"
                   />
                 </CardContent>
               </Card>
 
-              {/* Single Guest Input */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Tambah Tamu Individual</CardTitle>
-                  <CardDescription>
-                    Tambahkan satu tamu dan buat pesan WhatsApp
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Nama Tamu *</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={guestData.name}
-                      onChange={handleGuestChange}
-                      placeholder="Contoh: Bapak Ahmad"
-                    />
-                  </div>                  <div>
-                    <Label htmlFor="phone">Nomor WhatsApp *</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      value={guestData.phone}
-                      onChange={handleGuestChange}
-                      placeholder="Contoh: 081234567890 atau 6281234567890"
-                    />
-                    {guestData.phone && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Format: +{formatPhoneNumber(guestData.phone)}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="relation">Hubungan (Opsional)</Label>
-                    <Input
-                      id="relation"
-                      name="relation"
-                      value={guestData.relation}
-                      onChange={handleGuestChange}
-                      placeholder="Contoh: Keluarga, Teman, Rekan Kerja"
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={generateSingleMessage} className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
-                    Buat Pesan
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Bulk Input */}
-              <Card>
-                <CardHeader>
+                <CardHeader className="p-4 sm:p-6">
                   <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Import Tamu Massal
+                    <Users className="h-5 w-5" />
+                    Nama Tamu
                   </CardTitle>
-                  <CardDescription>
-                    Format: Nama, Nomor HP, Hubungan (satu baris per tamu)
+                  <CardDescription className="text-xs leading-relaxed sm:text-sm">
+                    Masukkan daftar nama tamu undangan pada kolom "Nama Tamu". Setiap nama tamu bisa dipisahkan
+                    dengan menekan Enter (baris baru) atau menggunakan tanda koma (,). Contoh: Budi, Siti, Andi
+                    atau satu nama per baris.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>                  <Textarea
-                    value={bulkGuests}
-                    onChange={(e) => setBulkGuests(e.target.value)}
+                <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                  <Label htmlFor="guestNames" className="mb-2 block">
+                    Nama Tamu
+                  </Label>
+                  <Textarea
+                    id="guestNames"
+                    value={guestNamesInput}
+                    onChange={(e) => setGuestNamesInput(e.target.value)}
                     rows={8}
-                    placeholder={`Bapak Ahmad, 081234567890, Keluarga
-Ibu Siti, 089876543210, Teman
-David Smith, 6281111222333, Rekan Kerja`}
+                    placeholder={`Budi, Siti, Andi
+atau
+Budi
+Siti
+Andi`}
                   />
                 </CardContent>
-                <CardFooter>
-                  <Button onClick={generateBulkMessages} className="w-full" variant="outline">
-                    <Users className="w-4 h-4 mr-2" />
-                    Import Semua Tamu
+                <CardFooter className="p-4 pt-0 sm:p-6 sm:pt-0">
+                  <Button onClick={generateBulkMessages} className="w-full" variant="outline" disabled={isSubmitting}>
+                    <Users className="mr-2 h-4 w-4" />
+                    {isSubmitting ? "Membuat..." : "Buat Nama Tamu"}
                   </Button>
                 </CardFooter>
               </Card>
             </div>
 
-            {/* Generated Messages */}
             <div>
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <CardTitle>Pesan yang Dibuat</CardTitle>
-                      <CardDescription>
-                        {generatedMessages.length} pesan siap dikirim
-                      </CardDescription>
+                      <CardTitle>Daftar Tamu</CardTitle>
+                      <CardDescription>{generatedMessages.length} nama tamu</CardDescription>
                     </div>
                     {generatedMessages.length > 0 && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={clearAllMessages}
-                      >
+                      <Button variant="destructive" size="sm" onClick={clearAllMessages} className="w-full sm:w-auto">
                         Hapus Semua
                       </Button>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="max-h-[800px] overflow-y-auto space-y-4">
-                  {generatedMessages.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Belum ada pesan yang dibuat</p>
+                <CardContent className="max-h-[70vh] space-y-4 overflow-y-auto p-4 pt-0 lg:max-h-[800px] sm:p-6 sm:pt-0">
+                  {isLoadingGuests ? (
+                    <div className="py-8 text-center text-gray-500">
+                      <p>Memuat daftar tamu...</p>
+                    </div>
+                  ) : generatedMessages.length === 0 ? (
+                    <div className="py-8 text-center text-gray-500">
+                      <MessageCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                      <p>Belum ada data tamu</p>
                     </div>
                   ) : (
                     generatedMessages.map((msg) => (
-                      <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Card className="border-l-4 border-l-green-500">
-                          <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                              <div>                                <CardTitle className="text-lg">{msg.name}</CardTitle>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="outline">{msg.phone}</Badge>
-                                  {msg.formattedPhone && msg.formattedPhone !== msg.phone.replace(/\D/g, '') && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700">
-                                      +{msg.formattedPhone}
-                                    </Badge>
-                                  )}
-                                  {msg.relation && (
-                                    <Badge variant="secondary">{msg.relation}</Badge>
-                                  )}
-                                </div>
-                              </div>
+                      <motion.div key={msg.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+                        <Card className="border border-rose-200 bg-white/90 shadow-sm">
+                          <CardContent className="p-3">
+                            <p className="text-sm font-medium text-gray-900 break-words">{msg.name}</p>
+                            <p className="mt-1 break-all text-[11px] text-gray-500">{msg.invitationLink}</p>
+
+                            <div className="mt-3 grid grid-cols-2 gap-2">
                               <Button
-                                variant="ghost"
                                 size="sm"
-                                onClick={() => deleteMessage(msg.id)}
-                                className="text-red-500 hover:text-red-700"
+                                onClick={() => openWhatsApp(msg.whatsappUrl)}
+                                className="h-8 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                               >
-                                ×
+                                <Send className="mr-1.5 h-3.5 w-3.5" />
+                                KIRIM
                               </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="pt-0">
-                            <div className="space-y-3">
-                              <div>
-                                <Label className="text-xs text-gray-600">Link Undangan:</Label>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Input
-                                    value={msg.invitationLink}
-                                    readOnly
-                                    className="text-xs"
-                                  />
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => copyToClipboard(msg.invitationLink)}
-                                  >
-                                    <Copy className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              <Separator />
-                              
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => openWhatsApp(msg.whatsappUrl)}
-                                  className="flex-1 bg-green-600 hover:bg-green-700"
-                                >
-                                  <Send className="w-4 h-4 mr-2" />
-                                  Kirim WhatsApp
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => copyToClipboard(msg.message)}
-                                >
-                                  <Copy className="w-4 h-4" />
-                                </Button>
-                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCopyInvitationLink(msg.invitationLink)}
+                                className="h-8 rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
+                              >
+                                <Copy className="mr-1.5 h-3.5 w-3.5" />
+                                TAUTAN
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                  onClick={() => openEditGuestModal(msg.id)}
+                                className="h-8 rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
+                              >
+                                EDIT
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => deleteMessage(msg.id)}
+                                className="h-8 rounded-full border-red-200 text-red-600 hover:bg-red-50"
+                              >
+                                HAPUS
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -442,16 +524,42 @@ David Smith, 6281111222333, Rekan Kerja`}
                   )}
                 </CardContent>
               </Card>
-            </div>        </div>
+            </div>
+          </div>
         </motion.div>
       </div>
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="w-[95vw] max-w-md sm:w-full">
+          <DialogHeader>
+            <DialogTitle>Edit Data Tamu</DialogTitle>
+            <DialogDescription>Perbarui nama tamu untuk memperbarui link dan teks undangan.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="editGuestName">Nama Tamu</Label>
+            <Input
+              id="editGuestName"
+              value={editingGuestName}
+              onChange={(e) => setEditingGuestName(e.target.value)}
+              placeholder="Masukkan nama tamu"
+            />
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="w-full sm:w-auto">
+              Batal
+            </Button>
+            <Button onClick={saveEditedGuest} disabled={isSavingEdit} className="w-full sm:w-auto">
+              {isSavingEdit ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
 export default function WAGeneratorPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
       <WAGeneratorContent />
     </Suspense>
   )

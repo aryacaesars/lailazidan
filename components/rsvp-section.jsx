@@ -8,15 +8,18 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Heart, Send, Gift } from "lucide-react"
+import { CircleCheck, Heart, Send } from "lucide-react"
+import invitationData from "../data/invitation-data.json"
 
 export default function RSVPSection({ guestName }) {
+  const { rsvpSection } = invitationData
   const [formData, setFormData] = useState({
     name: guestName || "",
-    attendance: "",
+    attendance: "hadir",
     guests: "1",
     message: "",
   })
+  const [successMessage, setSuccessMessage] = useState("")
 
   // Update form data when guestName prop changes
   useEffect(() => {
@@ -28,11 +31,38 @@ export default function RSVPSection({ guestName }) {
     }
   }, [guestName])
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (!successMessage) return
+    const timeout = setTimeout(() => {
+      setSuccessMessage("")
+    }, 4000)
+    return () => clearTimeout(timeout)
+  }, [successMessage])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("RSVP Data:", formData)
-    alert("Terima kasih atas konfirmasi kehadiran Anda!")
+    try {
+      const response = await fetch("/api/rsvps", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result?.error || "Gagal mengirim RSVP")
+      }
+      setSuccessMessage(rsvpSection.submitSuccessMessage)
+      setFormData((prev) => ({
+        name: guestName || prev.name,
+        attendance: "hadir",
+        guests: "1",
+        message: "",
+      }))
+    } catch (error) {
+      alert(error.message || "Gagal mengirim RSVP")
+    }
   }
 
   const handleInputChange = (field, value) => {
@@ -49,13 +79,13 @@ export default function RSVPSection({ guestName }) {
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
-          <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl text-sage-700 mb-3 sm:mb-4">Konfirmasi Kehadiran</h2>
-          <p className="text-sage-600 max-w-2xl mx-auto text-sm sm:text-base px-4 sm:px-0">
-            Kehadiran dan doa restu Anda merupakan kebahagiaan terbesar bagi kami
+          <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl text-foreground mb-3 sm:mb-4">{rsvpSection.title}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base px-4 sm:px-0">
+            {rsvpSection.description}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8">
           {/* RSVP Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -63,39 +93,53 @@ export default function RSVPSection({ guestName }) {
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-lg">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-lg">
               <CardContent className="p-8">
+                {successMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 rounded-xl bg-green-500 px-4 py-3 text-white"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-full bg-white p-2 text-green-500">
+                        <CircleCheck className="h-5 w-5" />
+                      </div>
+                      <p className="text-base font-medium">{successMessage}</p>
+                    </div>
+                  </motion.div>
+                )}
                 {guestName && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mb-6 p-4 bg-sage-50 rounded-lg border border-sage-200"
+                    className="mb-6 p-4 bg-muted rounded-lg border border-border"
                   >
-                    <p className="text-sage-700 text-center">
+                    <p className="text-foreground text-center">
                       <span className="font-semibold">Halo {guestName.split(" ")[0]}!</span> 
                       <br />
-                      <span className="text-sm">Silakan konfirmasi kehadiran Anda untuk acara pernikahan kami 💕</span>
+                      <span className="text-sm">{rsvpSection.guestGreetingTemplate}</span>
                     </p>
                   </motion.div>
                 )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <Label htmlFor="name" className="text-sage-700 font-medium">
+                    <Label htmlFor="name" className="text-foreground font-medium">
                       Nama Lengkap
                     </Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => handleInputChange("name", e.target.value)}
-                      className="mt-2 border-sage-300 focus:border-sage-500"
+                      className="mt-2 border-input"
                       placeholder="Masukkan nama lengkap Anda"
                       required
                     />
                   </div>
 
                   <div>
-                    <Label className="text-sage-700 font-medium">Konfirmasi Kehadiran</Label>
+                    <Label className="text-foreground font-medium">Konfirmasi Kehadiran</Label>
                     <RadioGroup
                       value={formData.attendance}
                       onValueChange={(value) => handleInputChange("attendance", value)}
@@ -103,13 +147,13 @@ export default function RSVPSection({ guestName }) {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="hadir" id="hadir" />
-                        <Label htmlFor="hadir" className="text-sage-600">
-                          Ya, saya akan hadir
+                        <Label htmlFor="hadir" className="text-muted-foreground">
+                          Inshaallah hadir
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="tidak-hadir" id="tidak-hadir" />
-                        <Label htmlFor="tidak-hadir" className="text-sage-600">
+                        <Label htmlFor="tidak-hadir" className="text-muted-foreground">
                           Maaf, saya tidak dapat hadir
                         </Label>
                       </div>
@@ -117,7 +161,7 @@ export default function RSVPSection({ guestName }) {
                   </div>
 
                   <div>
-                    <Label htmlFor="guests" className="text-sage-700 font-medium">
+                    <Label htmlFor="guests" className="text-foreground font-medium">
                       Jumlah Tamu
                     </Label>
                     <Input
@@ -127,25 +171,25 @@ export default function RSVPSection({ guestName }) {
                       max="5"
                       value={formData.guests}
                       onChange={(e) => handleInputChange("guests", e.target.value)}
-                      className="mt-2 border-sage-300 focus:border-sage-500"
+                      className="mt-2 border-input"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="message" className="text-sage-700 font-medium">
+                    <Label htmlFor="message" className="text-foreground font-medium">
                       Pesan & Doa
                     </Label>
                     <Textarea
                       id="message"
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
-                      className="mt-2 border-sage-300 focus:border-sage-500"
+                      className="mt-2 border-input"
                       placeholder="Tuliskan pesan dan doa terbaik untuk kami..."
                       rows={4}
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-sage-600 hover:bg-sage-700 text-white">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
                     <Send className="w-4 h-4 mr-2" />
                     Kirim Konfirmasi
                   </Button>
@@ -154,7 +198,7 @@ export default function RSVPSection({ guestName }) {
             </Card>
           </motion.div>
 
-          {/* Wedding Gift Info */}
+          {/* Thank You Info */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -162,38 +206,12 @@ export default function RSVPSection({ guestName }) {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <Card className="bg-gradient-to-br from-sage-100 to-cream-100 border-sage-200 shadow-lg">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-lg">
               <CardContent className="p-8 text-center">
-                <Gift className="w-12 h-12 text-sage-600 mx-auto mb-4" />
-                <h3 className="font-serif text-2xl text-sage-700 mb-4">Wedding Gift</h3>
-                <p className="text-sage-600 mb-6 text-sm leading-relaxed">
-                  Doa restu Anda adalah hadiah yang paling berharga bagi kami. Namun jika ingin memberikan hadiah, Anda
-                  dapat mengirimkannya melalui:
-                </p>
-
-                <div className="space-y-4 text-left">
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <p className="font-medium text-sage-700">Bank BCA</p>
-                    <p className="text-sage-600 text-sm">1234567890</p>
-                    <p className="text-sage-600 text-sm">a.n. Sarah Amelia</p>
-                  </div>
-
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <p className="font-medium text-sage-700">Bank Mandiri</p>
-                    <p className="text-sage-600 text-sm">0987654321</p>
-                    <p className="text-sage-600 text-sm">a.n. David Rahman</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-lg">
-              <CardContent className="p-8 text-center">
-                <Heart className="w-8 h-8 text-sage-500 mx-auto mb-4 fill-current" />
-                <h3 className="font-serif text-xl text-sage-700 mb-3">Terima Kasih</h3>
-                <p className="text-sage-600 text-sm leading-relaxed">
-                  Kehadiran Anda dalam momen bahagia kami adalah berkah yang tak ternilai. Terima kasih atas doa dan
-                  dukungan yang telah Anda berikan.
+                <Heart className="w-8 h-8 text-primary mx-auto mb-4 fill-current" />
+                <h3 className="font-serif text-xl text-foreground mb-3">{rsvpSection.thankYouTitle}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {rsvpSection.thankYouText}
                 </p>
               </CardContent>
             </Card>

@@ -1,0 +1,89 @@
+{
+  "wedding": {
+    "title": "Wedding Invitation",
+    "coupleShortName": "Laila & Zidan",
+    "date": "19 April 2026",
+    "dayTime": "Minggu, 11:00 WIB",
+    "venue": "Graha Asia Tasikmalaya",
+    "address": "Jl. HZ. Mustofa - Kota Tasikmalaya",
+    "coverImage": "/logo.svg"
+  },
+  "hero": {
+    "subtitle": "The Wedding of",
+    "quote": "\"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya\"",
+    "quoteSource": "- QS. Ar-Rum: 21 -"
+  },
+  "coupleSection": {
+    "title": "Mempelai",
+    "description": "Dengan memohon rahmat dan ridho Allah SWT, Kami bermaksud menyelenggarakan Akad & Resepsi Pernikahan Putra - Putri Kami :",
+    "bride": {
+      "name": "Nurul Laila",
+      "role": "Putri ke - 4 dari",
+      "parents": "Bpk. H. Aang Sopandi & Hj. Aah",
+      "businessName": "ASSYUKUR MUSLIM WEAR",
+      "quote": "\"Cinta sejati adalah ketika dua jiwa bertemu dan menjadi satu dalam kebahagiaan dan kesedihan\"",
+      "photo": "/logo.svg"
+    },
+    "groom": {
+      "name": "Muhammad Zidan Hijaz Zulfiqar",
+      "role": "Putra ke - 2 dari",
+      "parents": "Bpk. K.H. Usep Fuad Syahid & Hj. Ai Sumarni",
+      "businessName": "Ponpes Al Quran Hidayatul Mustafid",
+      "quote": "\"Dalam setiap langkah hidup, aku ingin bersamamu hingga akhir waktu\"",
+      "photo": "/logo.svg"
+    }
+  },
+  "eventSection": {
+    "title": "Acara Pernikahan",
+    "description": "Merupakan suatu kehormatan dan kebahagiaan bagi Kami apabila Bapak/Ibu/Saudara/i berkenan hadir pada acara pernikahan Putra - putri kami.",
+    "events": [
+      {
+        "title": "Akad Nikah",
+        "date": "19 April 2026",
+        "time": "08.00 WIB",
+        "location": "Graha Asia Tasikmalaya",
+        "address": "Jl. HZ. Mustofa - Kota Tasikmalaya",
+        "mapLink": "https://maps.app.goo.gl/ZFu8sAUUyZF9Qfwx6",
+        "description": "Prosesi akad nikah akan dilaksanakan secara khidmat"
+      },
+      {
+        "title": "Resepsi",
+        "date": "19 April 2026",
+        "time": "11.00 - 14.00 WIB",
+        "location": "Graha Asia Tasikmalaya",
+        "address": "Jl. HZ. Mustofa - Kota Tasikmalaya",
+        "mapLink": "https://maps.app.goo.gl/ZFu8sAUUyZF9Qfwx6",
+        "description": "Resepsi pernikahan untuk merayakan kebahagiaan bersama"
+      }
+    ]
+  },
+  "rsvpSection": {
+    "title": "Konfirmasi Kehadiran",
+    "description": "Kehadiran dan doa restu Anda merupakan kebahagiaan terbesar bagi kami",
+    "guestGreetingTemplate": "Silakan konfirmasi kehadiran Anda untuk acara pernikahan kami",
+    "submitSuccessMessage": "Terima kasih atas konfirmasi kehadiran Anda!",
+    "gift": {
+      "title": "Wedding Gift",
+      "description": "Doa restu Anda adalah hadiah yang paling berharga bagi kami. Namun jika ingin memberikan hadiah, Anda dapat mengirimkannya melalui:",
+      "accounts": [
+        { "bank": "Bank BCA", "number": "1234567890", "holder": "a.n. Nurul Laila" },
+        { "bank": "Bank Mandiri", "number": "0987654321", "holder": "a.n. Muhammad Zidan Hijaz Zulfiqar" }
+      ]
+    },
+    "thankYouTitle": "Terima Kasih",
+    "thankYouText": "Kehadiran Anda dalam momen bahagia kami adalah berkah yang tak ternilai. Terima kasih atas doa dan dukungan yang telah Anda berikan."
+  },
+  "waGenerator": {
+    "defaultStyle": "formal",
+    "styles": {
+      "formal": {
+        "label": "Gaya Formal",
+        "template": "Yth. {guest_name},\n\nDengan hormat, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan:\n\n*{couple_name}*\n\n{event_date}\n{event_time}\n{event_location}\n{event_address}\n\nMerupakan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir.\n\nKonfirmasi kehadiran dapat dilakukan melalui tautan berikut:\n{invitation_link}\n\nTerima kasih atas perhatian dan doa restunya."
+      },
+      "islami": {
+        "label": "Gaya Islami",
+        "template": "Assalamualaikum Wr. Wb.\n\nDengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang {guest_name} untuk hadir pada acara pernikahan kami:\n\n*{couple_name}*\n\n{event_date}\n{event_time}\n{event_location}\n{event_address}\n\nMerupakan suatu kehormatan bagi kami apabila {guest_name} berkenan hadir dalam acara bahagia kami.\n\nUntuk konfirmasi kehadiran, silakan klik link berikut:\n{invitation_link}\n\nJazakumullahu khairan.\n\nWassalamualaikum Wr. Wb."
+      }
+    }
+  }
+}

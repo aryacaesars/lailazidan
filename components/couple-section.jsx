@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
+import invitationData from "../data/invitation-data.json"
 
 export default function CoupleSection() {
+  const { coupleSection } = invitationData
   return (
     <section className="py-12 sm:py-16 lg:py-20 px-2 sm:px-4">
       <div className="max-w-6xl mx-auto">
@@ -14,13 +16,13 @@ export default function CoupleSection() {
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
-          <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl text-sage-700 mb-3 sm:mb-4">Mempelai</h2>
-          <p className="text-sage-600 max-w-2xl mx-auto text-sm sm:text-base px-4 sm:px-0">
-            Dengan penuh rasa syukur, kami mengundang Anda untuk menyaksikan ikrar suci kami
+          <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl text-foreground mb-3 sm:mb-4">{coupleSection.title}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base px-4 sm:px-0">
+            {coupleSection.description}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8">
           {/* Bride */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -28,23 +30,13 @@ export default function CoupleSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-lg">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-lg">
               <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-cream-200 to-sage-200 flex items-center justify-center">
-                  <img
-                    src="/cover/image.png"
-                    alt="Sarah"
-                    className="w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 rounded-full object-cover"
-                  />
-                </div>
-                <h3 className="font-script text-2xl sm:text-3xl lg:text-4xl text-sage-700 mb-2">Sarah Amelia</h3>
-                <p className="text-sage-600 mb-3 sm:mb-4 text-sm sm:text-base">Putri dari</p>
-                <p className="text-sage-700 font-medium text-sm sm:text-base">Bapak Ahmad Wijaya & Ibu Siti Nurhaliza</p>
-                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-sage-200">
-                  <p className="text-sage-600 text-xs sm:text-sm leading-relaxed">
-                    "Cinta sejati adalah ketika dua jiwa bertemu dan menjadi satu dalam kebahagiaan dan kesedihan"
-                  </p>
-                </div>
+                <h3 className="font-script text-2xl sm:text-3xl lg:text-4xl text-foreground mb-2">{coupleSection.bride.name}</h3>
+                <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">{coupleSection.bride.role}</p>
+                <p className="text-foreground font-medium text-sm sm:text-base">{coupleSection.bride.parents}</p>
+                <div className="w-16 mx-auto mt-3 mb-2 border-t border-border" />
+                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.bride.businessName}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -56,23 +48,13 @@ export default function CoupleSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-lg">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-lg">
               <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-cream-200 to-sage-200 flex items-center justify-center">
-                  <img
-                    src="/cover/image.png"
-                    alt="David"
-                    className="w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 rounded-full object-cover"
-                  />
-                </div>
-                <h3 className="font-script text-2xl sm:text-3xl lg:text-4xl text-sage-700 mb-2">David Rahman</h3>
-                <p className="text-sage-600 mb-3 sm:mb-4 text-sm sm:text-base">Putra dari</p>
-                <p className="text-sage-700 font-medium text-sm sm:text-base">Bapak Bambang Rahman & Ibu Dewi Sartika</p>
-                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-sage-200">
-                  <p className="text-sage-600 text-xs sm:text-sm leading-relaxed">
-                    "Dalam setiap langkah hidup, aku ingin bersamamu hingga akhir waktu"
-                  </p>
-                </div>
+                <h3 className="font-script text-2xl sm:text-3xl lg:text-4xl text-foreground mb-2">{coupleSection.groom.name}</h3>
+                <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">{coupleSection.groom.role}</p>
+                <p className="text-foreground font-medium text-sm sm:text-base">{coupleSection.groom.parents}</p>
+                <div className="w-16 mx-auto mt-3 mb-2 border-t border-border" />
+                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.groom.businessName}</p>
               </CardContent>
             </Card>
           </motion.div>

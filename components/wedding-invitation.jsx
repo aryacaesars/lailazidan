@@ -5,7 +5,6 @@ import { useState, useEffect } from "react"
 import HeroSection from "./hero-section"
 import CoupleSection from "./couple-section"
 import EventDetails from "./event-details"
-import GallerySection from "./gallery-section"
 import RSVPSection from "./rsvp-section"
 import FloralDivider from "./floral-divider"
 import CoverPage from "./cover-page"
@@ -32,7 +31,7 @@ export default function WeddingInvitation() {
   useEffect(() => {
     if (showCover) return // Don't observe if cover is still showing
     
-    const sections = ["home", "couple", "events", "gallery", "rsvp"]
+    const sections = ["home", "couple", "events", "rsvp"]
     const sectionElements = sections.map(id => document.getElementById(id))
     
     const options = {
@@ -107,15 +106,11 @@ export default function WeddingInvitation() {
             <EventDetails />
           </div>
           <FloralDivider />
-          <div id="gallery" className="w-full">
-            <GallerySection />
-          </div>
-          <FloralDivider />
           <div id="rsvp" className="w-full">
             <RSVPSection guestName={guestName} />
           </div>
           <div className="text-center py-6 sm:py-8 px-4">
-            <a href="/admin" className="text-sage-600 hover:text-sage-800 text-sm">Hubungi Admin</a>
+            <a href="/admin" className="text-primary hover:text-primary/80 text-sm">Hubungi Admin</a>
           </div>
         </div>
         {/* Bottom padding for navbar, if needed */}
@@ -127,7 +122,7 @@ export default function WeddingInvitation() {
   return (
     <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-cream-50 to-sage-50 overflow-x-hidden">
       {/* Background Pattern */}
-      <div className="fixed inset-0 ornament opacity-30 pointer-events-none" />
+      <div className="absolute inset-0 ornament opacity-30 pointer-events-none" />
 
       {showCover ? (
         <CoverPage onOpenInvitation={handleOpenInvitation} guestName={guestName} />
@@ -136,9 +131,7 @@ export default function WeddingInvitation() {
           <div className="flex-1 flex flex-col">
             {renderContent()}
           </div>
-          <div className="fixed bottom-0 left-0 right-0 z-50">
-            <BottomNavbar activeSection={activeSection} onSectionChange={scrollToSection} />
-          </div>
+          <BottomNavbar activeSection={activeSection} onSectionChange={scrollToSection} />
           <MusicPlayer />
         </>
       )}

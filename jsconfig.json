@@ -5,8 +5,9 @@
       "@/components/*": ["components/*"],
       "@/lib/*": ["lib/*"],
       "@/hooks/*": ["hooks/*"],
-      "@/components/ui/*": ["components/ui/*"]
+      "@/components/ui/*": ["components/ui/*"],
+      "@/data/*": ["data/*"]
     }
   },
-  "include": ["app", "components", "lib", "hooks"]
+  "include": ["app", "components", "lib", "hooks", "data"]
 }

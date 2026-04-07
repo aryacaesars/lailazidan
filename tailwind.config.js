@@ -53,28 +53,28 @@ module.exports = {
   				foreground: 'hsl(var(--card-foreground))'
   			},
   			sage: {
-  				'50': '#f6f7f4',
-  				'100': '#e9ebe3',
-  				'200': '#d4d8c8',
-  				'300': '#b8bfa4',
-  				'400': '#9ca682',
-  				'500': '#7d8a5f',
-  				'600': '#626d4a',
-  				'700': '#4d563c',
-  				'800': '#404632',
-  				'900': '#373c2c'
+  				'50': 'hsl(var(--color-sage-50))',
+  				'100': 'hsl(var(--color-sage-100))',
+  				'200': 'hsl(var(--color-sage-200))',
+  				'300': 'hsl(var(--color-sage-300))',
+  				'400': 'hsl(var(--color-sage-400))',
+  				'500': 'hsl(var(--color-sage-500))',
+  				'600': 'hsl(var(--color-sage-600))',
+  				'700': 'hsl(var(--color-sage-700))',
+  				'800': 'hsl(var(--color-sage-800))',
+  				'900': 'hsl(var(--color-sage-900))'
   			},
   			cream: {
-  				'50': '#fefcf8',
-  				'100': '#fdf8f0',
-  				'200': '#faf0de',
-  				'300': '#f5e4c1',
-  				'400': '#eed49b',
-  				'500': '#e5c173',
-  				'600': '#d9a84d',
-  				'700': '#b68a3a',
-  				'800': '#936f33',
-  				'900': '#785c2e'
+  				'50': 'hsl(var(--color-cream-50))',
+  				'100': 'hsl(var(--color-cream-100))',
+  				'200': 'hsl(var(--color-cream-200))',
+  				'300': 'hsl(var(--color-cream-300))',
+  				'400': 'hsl(var(--color-cream-400))',
+  				'500': 'hsl(var(--color-cream-500))',
+  				'600': 'hsl(var(--color-cream-600))',
+  				'700': 'hsl(var(--color-cream-700))',
+  				'800': 'hsl(var(--color-cream-800))',
+  				'900': 'hsl(var(--color-cream-900))'
   			},
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',

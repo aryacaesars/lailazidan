@@ -33,14 +33,14 @@ export default function MusicPlayer() {
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 3 }}
-      className="fixed bottom-32 right-6 z-50"
+      className="mobile-fixed-boundary fixed bottom-28 z-50 flex justify-end px-3"
     >
-      <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg border border-sage-200">
+      <div className="w-fit bg-card/90 backdrop-blur-sm rounded-full p-3 shadow-lg border border-border">
         <div className="flex items-center gap-2">
           <Button
             onClick={togglePlay}
             size="sm"
-            className="bg-sage-600 hover:bg-sage-700 text-white rounded-full w-10 h-10 p-0"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-10 h-10 p-0"
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
@@ -49,7 +49,7 @@ export default function MusicPlayer() {
             onClick={toggleMute}
             size="sm"
             variant="ghost"
-            className="text-sage-600 hover:text-sage-700 rounded-full w-8 h-8 p-0"
+            className="text-primary hover:text-primary/80 rounded-full w-8 h-8 p-0"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </Button>
