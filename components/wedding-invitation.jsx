@@ -109,9 +109,6 @@ export default function WeddingInvitation() {
           <div id="rsvp" className="w-full">
             <RSVPSection guestName={guestName} />
           </div>
-          <div className="text-center py-6 sm:py-8 px-4">
-            <a href="/admin" className="text-primary hover:text-primary/80 text-sm">Hubungi Admin</a>
-          </div>
         </div>
         {/* Bottom padding for navbar, if needed */}
         <div className="h-12 sm:h-16" />

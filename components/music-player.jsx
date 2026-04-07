@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Play, Pause, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,39 @@ export default function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef(null)
+  const hasTriedAutoplayRef = useRef(false)
+
+  const attemptPlay = useCallback(async () => {
+    if (!audioRef.current) return
+
+    try {
+      await audioRef.current.play()
+      setIsPlaying(true)
+    } catch {
+      // Browsers may block autoplay until user interaction.
+      setIsPlaying(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (hasTriedAutoplayRef.current) return
+    hasTriedAutoplayRef.current = true
+    attemptPlay()
+  }, [attemptPlay])
+
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      if (!isPlaying) {
+        attemptPlay()
+      }
+      window.removeEventListener("pointerdown", handleFirstInteraction)
+    }
+
+    window.addEventListener("pointerdown", handleFirstInteraction, { once: true })
+    return () => {
+      window.removeEventListener("pointerdown", handleFirstInteraction)
+    }
+  }, [attemptPlay, isPlaying])
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -57,7 +90,7 @@ export default function MusicPlayer() {
       </div>
 
       {/* Audio element - you can replace with actual audio file */}
-      <audio ref={audioRef} loop onEnded={() => setIsPlaying(false)}>
+      <audio ref={audioRef} autoPlay loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)}>
         <source src="/music/music.mp3" type="audio/mpeg" />
         {/* Fallback for browsers that don't support audio */}
       </audio>
