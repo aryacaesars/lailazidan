@@ -117,6 +117,12 @@
     background: hsl(var(--background));
   }
 
+  /* Admin panel: use full device width on mobile (not invitation phone frame) */
+  .mobile-shell:has(.admin-app-shell) {
+    max-width: none;
+    width: 100%;
+  }
+
   .mobile-fixed-boundary {
     left: max(0px, calc((100vw - 430px) / 2));
     right: max(0px, calc((100vw - 430px) / 2));

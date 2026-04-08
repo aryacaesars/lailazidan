@@ -70,7 +70,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 p-2.5 sm:p-4">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -78,16 +78,16 @@ export default function AdminDashboard() {
           transition={{ duration: 0.5 }}
         >
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Link href="/">
-              <Button variant="outline" size="sm">
+          <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:gap-4">
+            <Link href="/" className="w-full sm:w-auto">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Kembali ke Undangan
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Admin</h1>
-              <p className="text-gray-600">Kelola undangan pernikahan Sarah & David</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Dashboard Admin</h1>
+              <p className="text-sm text-gray-600 sm:text-base">Kelola undangan pernikahan Sarah & David</p>
             </div>
           </div>
 
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="flex flex-wrap gap-3">
                   <Link href="/admin/wa-generator">
-                    <Button className="bg-green-600 hover:bg-green-700">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white">
                       <Send className="w-4 h-4 mr-2" />
                       Buat Nama Tamu
                     </Button>
