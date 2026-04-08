@@ -59,19 +59,22 @@
       }
     ]
   },
+  "weddingGiftSection": {
+    "title": "Wedding Gift",
+    "description": "Doa restu Anda adalah hadiah yang paling berarti. Jika berkenan memberikan amplop digital, kami ucapkan terima kasih.",
+    "accountHolderLabel": "a.n.",
+    "accountHolder": "Hj Aah",
+    "accounts": [
+      { "id": "bri", "bank": "BRI", "number": "016101000697560" },
+      { "id": "bca", "bank": "BCA", "number": "0540388458" },
+      { "id": "mandiri", "bank": "Bank Mandiri", "number": "1310011308238" }
+    ]
+  },
   "rsvpSection": {
     "title": "Konfirmasi Kehadiran",
     "description": "Kehadiran dan doa restu Anda merupakan kebahagiaan terbesar bagi kami",
     "guestGreetingTemplate": "Silakan konfirmasi kehadiran Anda untuk acara pernikahan kami",
     "submitSuccessMessage": "Terima kasih atas konfirmasi kehadiran Anda!",
-    "gift": {
-      "title": "Wedding Gift",
-      "description": "Doa restu Anda adalah hadiah yang paling berharga bagi kami. Namun jika ingin memberikan hadiah, Anda dapat mengirimkannya melalui:",
-      "accounts": [
-        { "bank": "Bank BCA", "number": "1234567890", "holder": "a.n. Nurul Laila" },
-        { "bank": "Bank Mandiri", "number": "0987654321", "holder": "a.n. Muhammad Zidan Hijaz Zulfiqar" }
-      ]
-    },
     "thankYouTitle": "Terima Kasih",
     "thankYouText": "Kehadiran Anda dalam momen bahagia kami adalah berkah yang tak ternilai. Terima kasih atas doa dan dukungan yang telah Anda berikan."
   },

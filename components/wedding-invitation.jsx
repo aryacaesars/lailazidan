@@ -6,6 +6,7 @@ import HeroSection from "./hero-section"
 import CoupleSection from "./couple-section"
 import EventDetails from "./event-details"
 import RSVPSection from "./rsvp-section"
+import WeddingGiftSection from "./wedding-gift-section"
 import FloralDivider from "./floral-divider"
 import CoverPage from "./cover-page"
 import MusicPlayer from "./music-player"
@@ -31,7 +32,7 @@ export default function WeddingInvitation() {
   useEffect(() => {
     if (showCover) return // Don't observe if cover is still showing
     
-    const sections = ["home", "couple", "events", "rsvp"]
+    const sections = ["home", "couple", "events", "gift", "rsvp"]
     const sectionElements = sections.map(id => document.getElementById(id))
     
     const options = {
@@ -104,6 +105,10 @@ export default function WeddingInvitation() {
           <FloralDivider />
           <div id="events" className="w-full">
             <EventDetails />
+          </div>
+          <FloralDivider />
+          <div id="gift" className="w-full">
+            <WeddingGiftSection />
           </div>
           <FloralDivider />
           <div id="rsvp" className="w-full">

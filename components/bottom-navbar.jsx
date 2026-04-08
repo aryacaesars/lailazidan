@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useState } from "react"
-import { Home, Heart, MessageCircle, Calendar } from "lucide-react"
+import { Home, Heart, MessageCircle, Calendar, Gift } from "lucide-react"
 
 export default function BottomNavbar({ activeSection, onSectionChange }) {
   const [hoveredItem, setHoveredItem] = useState(null)
@@ -12,6 +12,7 @@ export default function BottomNavbar({ activeSection, onSectionChange }) {
     { id: "home", icon: Home, label: "Beranda", color: "text-primary" },
     { id: "couple", icon: Heart, label: "Mempelai", color: "text-primary" },
     { id: "events", icon: Calendar, label: "Acara", color: "text-primary" },
+    { id: "gift", icon: Gift, label: "Hadiah", color: "text-primary" },
     { id: "rsvp", icon: MessageCircle, label: "RSVP", color: "text-primary" },
   ]
 
