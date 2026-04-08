@@ -89,10 +89,9 @@ export default function MusicPlayer() {
         </div>
       </div>
 
-      {/* Audio element - you can replace with actual audio file */}
+      {/* Audio element */}
       <audio ref={audioRef} autoPlay loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)}>
-        <source src="/music/music.mp3" type="audio/mpeg" />
-        {/* Fallback for browsers that don't support audio */}
+        <source src="/music/music.m4a" type="audio/mp4" />
       </audio>
     </motion.div>
   )
