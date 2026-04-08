@@ -36,7 +36,8 @@ export default function CoupleSection() {
                 <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">{coupleSection.bride.role}</p>
                 <p className="text-foreground font-medium text-sm sm:text-base">{coupleSection.bride.parents}</p>
                 <div className="w-16 mx-auto mt-3 mb-2 border-t border-border" />
-                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.bride.businessName}</p>
+                <p className="font-semibold text-foreground text-xs sm:text-sm">{coupleSection.bride.businessName}</p>
+                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.bride.businessAddress}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -54,7 +55,8 @@ export default function CoupleSection() {
                 <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">{coupleSection.groom.role}</p>
                 <p className="text-foreground font-medium text-sm sm:text-base">{coupleSection.groom.parents}</p>
                 <div className="w-16 mx-auto mt-3 mb-2 border-t border-border" />
-                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.groom.businessName}</p>
+                <p className="font-semibold text-foreground text-xs sm:text-sm">{coupleSection.groom.businessName}</p>
+                <p className="text-muted-foreground text-xs sm:text-sm">{coupleSection.groom.businessAddress}</p>
               </CardContent>
             </Card>
           </motion.div>
