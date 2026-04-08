@@ -1,9 +1,9 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Undangan Pernikahan - Sarah & David',
-  description: 'Undangan pernikahan Sarah Amelia & David Rahman',
-  generator: 'v0.dev',
+  title: 'Undangan Pernikahan - Laila & Zidan',
+  description: 'Undangan pernikahan Laila & Zidan',
+  generator: 'devixsolutions',
 }
 
 export const viewport = {
